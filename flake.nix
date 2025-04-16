@@ -539,9 +539,9 @@
       };
     };
 
-    packages.aarch64-linux = {
-      openocd-bscanspi = openocd-bscanspi-f pkgs-aarch64;
-    };
+#    packages.aarch64-linux = {
+#      openocd-bscanspi = openocd-bscanspi-f pkgs-aarch64;
+#    };
 
     hydraJobs = {
       inherit (packages.aarch64-linux) artiq artiq-board-kc705-nist_clock artiq-board-efc-shuttler openocd-bscanspi;
