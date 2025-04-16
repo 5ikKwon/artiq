@@ -49,7 +49,7 @@
     src-misoc,
   }: let
     pkgs = import nixpkgs {
-      system = "x86_64-linux";
+      system = "aarch64-linux";
       overlays = [(import rust-overlay)];
     };
     pkgs-aarch64 = import nixpkgs {system = "aarch64-linux";};
@@ -182,7 +182,7 @@
       nativeBuildInputs = [pkgs.qt6.wrapQtAppsHook];
       # keep llvm_x and lld_x in sync with llvmlite
       propagatedBuildInputs =
-        [pkgs.llvm_15 pkgs.lld_15 sipyco.packages.x86_64-linux.sipyco pythonparser llvmlite-new pkgs.qt6.qtsvg artiq-comtools.packages.x86_64-linux.artiq-comtools]
+        [pkgs.llvm_15 pkgs.lld_15 sipyco.packages.aarch64-linux.sipyco pythonparser llvmlite-new pkgs.qt6.qtsvg artiq-comtools.packages.aarch64-linux.artiq-comtools]
         ++ (with pkgs.python3Packages; [pyqtgraph pygit2 numpy dateutil scipy prettytable pyserial levenshtein h5py pyqt6 qasync tqdm lmdb jsonschema platformdirs]);
 
       dontWrapQtApps = true;
@@ -396,7 +396,7 @@
         done
       '';
   in rec {
-    packages.x86_64-linux = {
+    packages.aarch64-linux = {
       inherit pythonparser qasync artiq;
       inherit migen misoc asyncserial microscope vivadoEnv vivado;
       openocd-bscanspi = openocd-bscanspi-f pkgs;
@@ -423,7 +423,7 @@
           ]
           ++ [
             latex-artiq-manual
-            artiq-comtools.packages.x86_64-linux.artiq-comtools
+            artiq-comtools.packages.aarch64-linux.artiq-comtools
             pkgs.pdf2svg
           ];
         buildPhase = ''
@@ -452,7 +452,7 @@
           ]
           ++ [
             latex-artiq-manual
-            artiq-comtools.packages.x86_64-linux.artiq-comtools
+            artiq-comtools.packages.aarch64-linux.artiq-comtools
             pkgs.pdf2svg
           ];
         buildPhase = ''
@@ -472,11 +472,11 @@
 
     inherit qtPaths makeArtiqBoardPackage openocd-bscanspi-f;
 
-    packages.x86_64-linux.default = pkgs.python3.withPackages (_: [packages.x86_64-linux.artiq]);
+    packages.aarch64-linux.default = pkgs.python3.withPackages (_: [packages.aarch64-linux.artiq]);
 
-    formatter.x86_64-linux = pkgs.alejandra;
+    formatter.aarch64-linux = pkgs.alejandra;
 
-    devShells.x86_64-linux = {
+    devShells.aarch64-linux = {
       # Main development shell with everything you need to develop ARTIQ on Linux.
       # The current copy of the ARTIQ sources is added to PYTHONPATH so changes can be tested instantly.
       # Additionally, executable wrappers that import the current ARTIQ sources for the ARTIQ frontends
@@ -510,9 +510,9 @@
             libartiq-support
 
             # use the vivado-env command to enter a FHS shell that lets you run the Vivado installer
-            packages.x86_64-linux.vivadoEnv
-            packages.x86_64-linux.vivado
-            packages.x86_64-linux.openocd-bscanspi
+            packages.aarch64-linux.vivadoEnv
+            packages.aarch64-linux.vivado
+            packages.aarch64-linux.openocd-bscanspi
           ];
         shellHook = ''
           export LIBARTIQ_SUPPORT=`libartiq-support`
@@ -531,8 +531,8 @@
           pkgs.llvm_15
           pkgs.lld_15
 
-          packages.x86_64-linux.vivado
-          packages.x86_64-linux.openocd-bscanspi
+          packages.aarch64-linux.vivado
+          packages.aarch64-linux.openocd-bscanspi
 
           (pkgs.python3.withPackages (ps: [migen misoc artiq ps.packaging ps.paramiko]))
         ];
@@ -544,11 +544,11 @@
     };
 
     hydraJobs = {
-      inherit (packages.x86_64-linux) artiq artiq-board-kc705-nist_clock artiq-board-efc-shuttler openocd-bscanspi;
+      inherit (packages.aarch64-linux) artiq artiq-board-kc705-nist_clock artiq-board-efc-shuttler openocd-bscanspi;
       gateware-sim = pkgs.stdenvNoCC.mkDerivation {
         name = "gateware-sim";
         buildInputs = [
-          (pkgs.python3.withPackages (ps: with packages.x86_64-linux; [migen misoc artiq]))
+          (pkgs.python3.withPackages (ps: with packages.aarch64-linux; [migen misoc artiq]))
         ];
         phases = ["buildPhase"];
         buildPhase = ''
@@ -566,7 +566,7 @@
         buildInputs = [
           (pkgs.python3.withPackages (
             ps:
-              with packages.x86_64-linux;
+              with packages.aarch64-linux;
                 [
                   artiq
                   ps.paramiko
@@ -576,7 +576,7 @@
           pkgs.llvm_15
           pkgs.lld_15
           pkgs.openssh
-          packages.x86_64-linux.openocd-bscanspi # for the bscanspi bitstreams
+          packages.aarch64-linux.openocd-bscanspi # for the bscanspi bitstreams
         ];
         phases = ["buildPhase"];
         buildPhase = ''
@@ -610,7 +610,7 @@
             artiq_rtiomap --device-db $ARTIQ_ROOT/device_db.py device_map.bin
             artiq_mkfs -s ip `python -c "import artiq.examples.kc705_nist_clock.device_db as ddb; print(ddb.core_addr)"`/24 -f device_map device_map.bin kc705_nist_clock.config
             artiq_flash -t kc705 -H rpi-1 storage -f kc705_nist_clock.config
-            artiq_flash -t kc705 -H rpi-1 -d ${packages.x86_64-linux.artiq-board-kc705-nist_clock}
+            artiq_flash -t kc705 -H rpi-1 -d ${packages.aarch64-linux.artiq-board-kc705-nist_clock}
             sleep 30
 
             python -m unittest discover -v artiq.test.coredevice
@@ -619,7 +619,7 @@
           touch $out
         '';
       };
-      inherit (packages.x86_64-linux) artiq-manual-html artiq-manual-pdf;
+      inherit (packages.aarch64-linux) artiq-manual-html artiq-manual-pdf;
     };
   };
 
