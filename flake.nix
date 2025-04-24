@@ -48,8 +48,8 @@
     src-migen,
     src-misoc,
   }: let
+    system = "aarch64-linux";
     pkgs = import nixpkgs {
-      system = "aarch64-linux";
       inherit system;
       overlays = [(import rust-overlay)];
     };
